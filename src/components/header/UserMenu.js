@@ -1,14 +1,14 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { authSelectors, authOperations } from 'redux/auth';
-import Button from 'react-bootstrap/Button';
+import { useDispatch, useSelector } from "react-redux";
+import { authSelectors, authOperations } from "../../redux/auth";
+import Button from "react-bootstrap/Button";
 
 const styles = {
   container: {
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
   },
   name: {
-    fontSize: '1.2em',
+    fontSize: "1.2em",
     fontWeight: 700,
     marginRight: 15,
   },
