@@ -1,89 +1,76 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { contactsOperations, contactsSelectors } from '../../redux/contacts';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
+import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Button } from "react-bootstrap";
+import { getVisibleContacts } from "../../redux/contacts/contacts-selectors";
+import contactsOperations from "../../redux/contacts/contacts-operations";
 
-const style = {
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '20px',
-    border: '2px solid #39c4ef',
-  },
-  title: {
-    fontWeight: 500,
-    fontSize: 48,
-    textAlign: 'center',
-  },
-};
+import style from "./ContactForm.module.css";
 
-function ContactForm() {
-  const allContacts = useSelector(contactsSelectors.getAllContacts);
+export default function ContactForm() {
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
+
+  const contacts = useSelector(getVisibleContacts);
   const dispatch = useDispatch();
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
 
-  const handleChange = ({ target: { name, value } }) => {
-    switch (name) {
-      case 'name':
-        return setName(value);
-      case 'number':
-        return setNumber(value);
-      default:
-        return;
+  const handleChange = (e) => {
+    if (e.currentTarget.type === "text") {
+      setName(e.currentTarget.value);
+    }
+    if (e.currentTarget.type === "tel") {
+      setNumber(e.currentTarget.value);
     }
   };
 
-  const handleSubmit = evt => {
-    evt.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    name === '' || number === ''
-      ? alert('PLEASE, ENTER NAME OR TELEPHONE NUMBER')
-      : allContacts.find(contact =>
-          contact.name.toLowerCase() === name.toLowerCase()
-            ? alert(name + ' is already in contacts')
-            : dispatch(contactsOperations.addContact({ name, number })),
-        );
+    const arrayName = contacts.map((contact) => {
+      return contact.name;
+    });
 
-    setName('');
-    setNumber('');
+    if (arrayName.includes(name)) {
+      alert(`${name} is already in contacts`);
+      setName("");
+      return;
+    }
+
+    dispatch(contactsOperations.addContact(name, number));
+    setName("");
+    setNumber("");
   };
 
   return (
-    <Form onSubmit={handleSubmit} style={style.container}>
-      <Form.Group controlId="formBasicName">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter name of new contact"
-          name="name"
+    <form onSubmit={handleSubmit}>
+      <label className={style.label}>
+        Name
+        <input
           value={name}
+          type="text"
+          name="name"
+          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+          title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
+          required
           onChange={handleChange}
-          autoComplete="off"
+          className={style.input}
         />
-        <Form.Text className="text-muted">
-          Please enter the name of which is not in your phone book
-        </Form.Text>
-      </Form.Group>
-
-      <Form.Group controlId="formBasicNumber" autoComplete="off">
-        <Form.Label>Telephone number</Form.Label>
-        <Form.Control
-          type="number"
-          placeholder="Enter telephone number of new contact "
-          name="number"
+      </label>
+      <label className={style.label}>
+        Number
+        <input
           value={number}
+          type="tel"
+          name="number"
+          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+          title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
+          required
           onChange={handleChange}
-          autoComplete="off"
+          className={style.input}
         />
-      </Form.Group>
-
-      <Button variant="primary" size="lg" type="submit">
+      </label>
+      <Button variant="outline-success" type="submit">
         Add contact
       </Button>
-    </Form>
+    </form>
   );
 }
-
-export default ContactForm;

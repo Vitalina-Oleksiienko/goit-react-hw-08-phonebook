@@ -1,60 +1,56 @@
-import { useEffect, Suspense, lazy } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Switch } from 'react-router-dom';
-import { authOperations, authSelectors } from './redux/auth';
-import { PrivateRoute, PublicRoute } from './customRouts';
-import AppBar from './components/header/AppBar';
-import Container from 'react-bootstrap/Container';
-import Spinner from 'react-bootstrap/Spinner';
+import { useEffect, Suspense, lazy } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Switch } from "react-router-dom";
 
-const HomeView = lazy(() =>
-  import('./view/HomeView' /*webpackChunkName: "home-view"*/),
-);
-const LoginView = lazy(() =>
-  import('./view/LoginView' /*webpackChunkName: "login-view"*/),
-);
-const RegisterView = lazy(() =>
-  import('./view/RegisterView' /*webpackChunkName: "register-view"*/),
-);
-const ContactsView = lazy(() =>
-  import('./view/ContactsView' /*webpackChunkName: "contacts-view"*/),
-);
+import { authOperations, authSelectors } from "./redux/auth";
 
-function App() {
+import Container from "./Components/Container/Container";
+import PrivateRoute from "./Components/PrivateRoute";
+import PublicRoute from "./Components/PublicRoute";
+
+import AppBar from "./Components/AppBar";
+
+const HomeView = lazy(() => import("./views/HomeView"));
+const RegisterView = lazy(() => import("./views/RegisterView"));
+const LoginView = lazy(() => import("./views/LoginView"));
+const ContactsView = lazy(() => import("./views/ContactsView"));
+
+export default function App() {
   const dispatch = useDispatch();
-  const isRefreshing = useSelector(authSelectors.getIsRefreshing);
+  const isFetchingCurrentUser = useSelector(authSelectors.getIsFetchingCurrent);
 
   useEffect(() => {
-    dispatch(authOperations.refreshCurrentUser());
+    dispatch(authOperations.fetchCurrentUser());
   }, [dispatch]);
 
   return (
     <Container>
-      <AppBar />
-      {!isRefreshing && (
-        <Switch>
-          <Suspense
-            fallback={
-              <Spinner animation="border" variant="primary" role="status" />
-            }
-          >
-            <PublicRoute exact path="/">
-              <HomeView />
-            </PublicRoute>
-            <PublicRoute exact restricted path="/register">
-              <RegisterView />
-            </PublicRoute>
-            <PublicRoute exact restricted redirectTo="/contacts" path="/login">
-              <LoginView />
-            </PublicRoute>
-            <PrivateRoute path="/contacts">
-              <ContactsView />
-            </PrivateRoute>
-          </Suspense>
-        </Switch>
+      {!isFetchingCurrentUser && (
+        <>
+          <AppBar />
+          <Switch>
+            <Suspense fallback={<p>Please wait...</p>}>
+              <PublicRoute exact path="/">
+                <HomeView />
+              </PublicRoute>
+              <PublicRoute exact path="/register" restricted>
+                <RegisterView />
+              </PublicRoute>
+              <PublicRoute
+                exact
+                path="/login"
+                redirectTo="/contacts"
+                restricted
+              >
+                <LoginView />
+              </PublicRoute>
+              <PrivateRoute path="/contacts" redirectTo="/login">
+                <ContactsView />
+              </PrivateRoute>
+            </Suspense>
+          </Switch>
+        </>
       )}
     </Container>
   );
 }
-
-export default App;

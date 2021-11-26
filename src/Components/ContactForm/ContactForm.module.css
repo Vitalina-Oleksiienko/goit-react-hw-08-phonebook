@@ -1,0 +1,24 @@
+.label {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.input {
+  color: rgb(11, 44, 17);
+  font-size: 1.2rem;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 0.2rem;
+  background-color: rgb(11, 48, 19);
+  border: none;
+  width: 90%;
+  display: block;
+  border-bottom: 0.3rem solid transparent;
+}
+
+.button {
+  font-size: 15px;
+  padding: 10px;
+  color: seagreen;
+}
